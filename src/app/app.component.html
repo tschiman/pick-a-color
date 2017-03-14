@@ -1,3 +1,10 @@
-<h1>
-  {{title}}
-</h1>
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1 color-wrapper" *ngFor="let color of colors; let i = index;">
+        <color-comparison-color-selector [color]="color" [index]="i"></color-comparison-color-selector>
+      </div>
+    </div>
+  </div>
+  <button (click)="addColor()">Add Color</button>
+</section>
