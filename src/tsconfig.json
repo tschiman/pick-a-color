@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "",
+    "baseUrl": "pick-a-color/",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
