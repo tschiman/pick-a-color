@@ -9,11 +9,17 @@ import {ColorPickerStore} from "./color-picker.store";
 export class AppComponent implements OnInit, OnDestroy{
 
   state: any;
+  outputs: string[] = ['hex', 'rgba', 'hsla'];
+  alphas: string[] = ['hex6', 'hex8', 'disabled'];
 
   constructor(private cpStore: ColorPickerStore){}
 
   addColor(): void {
     this.cpStore.dispatch(this.state, {type: 'ADD_COLOR', color: '#ffffff'});
+  }
+
+  clearColors(): void {
+    this.cpStore.dispatch(this.state, {type: 'CLEAR_COLORS'})
   }
 
   onChangeColor() {
@@ -37,6 +43,14 @@ export class AppComponent implements OnInit, OnDestroy{
 
   ngOnDestroy() {
     this.cpStore.stateEvent.unsubscribe();
+  }
+
+  onOutputChange(output: string) {
+    this.cpStore.dispatch(this.state, {type: 'CHANGE_OUTPUT', output: output});
+  }
+
+  onAlphaChange(alpha: string) {
+    this.cpStore.dispatch(this.state, {type: 'CHANGE_ALPHA', alpha: alpha});
   }
 
   // onOutputChange(output: string) {
