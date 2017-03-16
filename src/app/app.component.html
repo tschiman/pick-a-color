@@ -1,29 +1,36 @@
 <section>
   <div class="container">
+    <div class="row add-color">
+      <div class="col-md-1">
+        <button class="btn btn-primary" type="button" (click)="addColor()">Add Color</button>
+      </div>
+    </div>
     <div class="row">
-      <div class="col-md-12">
-        <form class="form-inline">
-          <!--<div class="form-group">-->
-            <!--<select class="form-control" (change)="onOutputChange($event.target.value) [value]=output">-->
-              <!--<option *ngFor="let output of outputs">{{output}}</option>-->
-            <!--</select>-->
-          <!--</div>-->
-          <!--<div class="form-group">-->
-            <!--<select class="form-control" (change)="onAlphaChange($event.target.value)" [value]="alpha">-->
-              <!--<option *ngFor="let alpha of alphas">{{alpha}}</option>-->
-            <!--</select>-->
-          <!--</div>-->
+      <div class="col-md-3" *ngIf="state && state.colors && state.colors.length > 0 && (state.selectedIndex || state.selectedIndex === 0)">
+        <span [(colorPicker)]="state.colors[state.selectedIndex]"
+              [cpDialogDisplay]="'inline'"
+              [style.background]="state.colors[state.selectedIndex]"
+              [cpToggle]="true"
+              (colorPickerChange)="onChangeColor()"></span>
+      </div>
 
-          <button class="btn btn-primary" type="button" (click)="addColor()">Add Color</button>
-        </form>
-
+      <div class="col-md-9">
+        <div class="row color-row" *ngIf="state && state.colors">
+          <div class="col-md-2 color-wrapper" *ngFor="let color of state.colors; let i = index;">
+            <button type="button" class="close" (click)="delete(i)" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <div>{{state.colors[i]}}</div>
+            <div class="color-container"
+                 [class.selected]="(state.selectedIndex || state.selectedIndex === 0) && state.selectedIndex === i"
+                 [style.background]="state.colors[i]"
+                 (click)="selectColor(i)">&nbsp;</div>
+            <!--<color-comparison-color-selector [index]="i"></color-comparison-color-selector>-->
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row" *ngIf="state && state.colors">
-      <div class="col-md-2 color-wrapper" *ngFor="let color of state.colors; let i = index;">
-        <color-comparison-color-selector [index]="i"></color-comparison-color-selector>
-      </div>
-    </div>
+
   </div>
 
 </section>

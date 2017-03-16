@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import {ColorPickerStore} from "./color-picker.store";
 
 @Component({
@@ -6,10 +6,8 @@ import {ColorPickerStore} from "./color-picker.store";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
-  // colors: string[] = [];
-  // // outputs: string[] = ['hex', 'rgba']
-  // // alphas: string[] = ['hex6', 'hex8', 'disabled']
+export class AppComponent implements OnInit, OnDestroy{
+
   state: any;
 
   constructor(private cpStore: ColorPickerStore){}
@@ -18,11 +16,27 @@ export class AppComponent implements OnInit{
     this.cpStore.dispatch(this.state, {type: 'ADD_COLOR', color: '#ffffff'});
   }
 
+  onChangeColor() {
+    this.cpStore.dispatch(this.state, {type: 'CHANGE_COLOR'})
+  }
+
+  selectColor(index: number) {
+    this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR', index: index})
+  }
+
+  delete(index: number) {
+    this.cpStore.dispatch(this.state, {type: 'DELETE_COLOR', index: index})
+  }
+
   ngOnInit() {
     this.cpStore.stateEvent.subscribe((state) => {
       this.state = state;
     })
     this.cpStore.dispatch(null, {type: 'INIT'})
+  }
+
+  ngOnDestroy() {
+    this.cpStore.stateEvent.unsubscribe();
   }
 
   // onOutputChange(output: string) {

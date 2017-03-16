@@ -2,6 +2,22 @@
   display: inline-block;
 }
 
+.add-color {
+  margin-bottom: 20px;
+}
+
+.color-container {
+  border: 1px solid #000000;
+}
+
+div.color-container.selected {
+  border: 1px solid #5bc0de;
+}
+
+.color-container:hover {
+  border: 1px solid #8c8c8c;
+}
+
 form {
   margin-bottom:15px;
 }
