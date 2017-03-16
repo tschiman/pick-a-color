@@ -18,9 +18,7 @@
       "tsconfig": "tsconfig.json",
       "prefix": "color-comparison",
       "styles": [
-        "styles.css",
-        "bootstrap.css",
-        "./app/app.component.css"
+        "styles.css"
       ],
       "scripts": [],
       "environments": {
