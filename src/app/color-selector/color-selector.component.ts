@@ -1,4 +1,5 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter} from "@angular/core";
+import {ColorPickerStore} from "../color-picker.store";
 
 @Component({
   selector: 'color-comparison-color-selector',
@@ -7,18 +8,24 @@ import {Component, OnInit, Input} from "@angular/core";
 })
 export class ColorSelectorComponent implements OnInit {
 
-  @Input() color;
-  @Input() index;
+  @Input() index: number;
+  private state: any;
 
-  constructor() { }
+  constructor(private cpStore: ColorPickerStore) { }
 
   ngOnInit() {
+    this.cpStore.stateEvent.subscribe((state) => {
+      this.state = state;
+    });
+    this.state = this.cpStore.getState();
   }
 
-  changeColor(color: string) {
-    let separator = color.includes(",") ? "," : " ";
-    let rgb: string[] = color.split(separator, 3)
-    if (rgb.length = 3) this.color = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+  close() {
+    this.cpStore.dispatch(this.state, {type: 'DELETE_COLOR', index: this.index});
   }
 
+  onChangeColor(color: string) {
+    console.log(event + " index: " + this.index);
+    this.cpStore.dispatch(this.state, {type: 'CHANGE_COLOR', color: color, index: this.index})
+  }
 }

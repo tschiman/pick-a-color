@@ -1,6 +1,15 @@
-<div class="color" [ngStyle]="{'background-color': color}">
-  &nbsp;
-</div>
-<div class="form-group">
-  <input #rgb type="text" class="form-control" placeholder="R G B" (change)="changeColor(rgb.value)">
+<div class="form-group" *ngIf="state.colors && state.colors.length > 0">
+  <input
+    color-comparison-click-stop-propagation
+    [(colorPicker)]="state.colors[index]"
+    [style.background]="state.colors[index]"
+    [cpCancelButton]="true"
+    [cpAlphaChannel]="state.alpha"
+    [cpOutputFormat]="state.output"
+    (colorPickerChange)="onChangeColor($event)"
+  />
+  <button jam-click-stop-propagation type="button" class="close" (click)="close()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <div>{{state.colors[index]}}</div>
 </div>

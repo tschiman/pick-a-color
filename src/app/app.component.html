@@ -1,10 +1,29 @@
 <section>
   <div class="container">
     <div class="row">
-      <div class="col-md-1 color-wrapper" *ngFor="let color of colors; let i = index;">
-        <color-comparison-color-selector [color]="color" [index]="i"></color-comparison-color-selector>
+      <div class="col-md-12">
+        <form class="form-inline">
+          <!--<div class="form-group">-->
+            <!--<select class="form-control" (change)="onOutputChange($event.target.value) [value]=output">-->
+              <!--<option *ngFor="let output of outputs">{{output}}</option>-->
+            <!--</select>-->
+          <!--</div>-->
+          <!--<div class="form-group">-->
+            <!--<select class="form-control" (change)="onAlphaChange($event.target.value)" [value]="alpha">-->
+              <!--<option *ngFor="let alpha of alphas">{{alpha}}</option>-->
+            <!--</select>-->
+          <!--</div>-->
+
+          <button class="btn btn-primary" type="button" (click)="addColor()">Add Color</button>
+        </form>
+
+      </div>
+    </div>
+    <div class="row" *ngIf="state && state.colors">
+      <div class="col-md-2 color-wrapper" *ngFor="let color of state.colors; let i = index;">
+        <color-comparison-color-selector [index]="i"></color-comparison-color-selector>
       </div>
     </div>
   </div>
-  <button (click)="addColor()">Add Color</button>
+
 </section>

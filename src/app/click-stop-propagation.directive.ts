@@ -1,7 +1,7 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[jam-click-stop-propagation]'
+  selector: '[color-comparison-click-stop-propagation]'
 })
 export class ClickStopPropagationDirective {
   @HostListener("click", ["$event"])
