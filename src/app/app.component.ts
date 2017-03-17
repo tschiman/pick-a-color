@@ -11,8 +11,20 @@ export class AppComponent implements OnInit, OnDestroy{
   state: any;
   outputs: string[] = ['hex', 'rgba', 'hsla'];
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
+  colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
 
   constructor(private cpStore: ColorPickerStore){}
+
+  ngOnInit() {
+    this.cpStore.stateEvent.subscribe((state) => {
+      this.state = state;
+    });
+    this.cpStore.dispatch(null, {type: 'INIT'})
+  }
+
+  ngOnDestroy() {
+    this.cpStore.stateEvent.unsubscribe();
+  }
 
   addColor(): void {
     this.cpStore.dispatch(this.state, {type: 'ADD_COLOR', color: '#ffffff'});
@@ -22,100 +34,39 @@ export class AppComponent implements OnInit, OnDestroy{
     this.cpStore.dispatch(this.state, {type: 'CLEAR_COLORS'})
   }
 
-  onChangeColor() {
+  onChangeColor(): void {
     this.cpStore.dispatch(this.state, {type: 'CHANGE_COLOR'})
   }
 
-  selectColor(index: number) {
+  onColorHarmonyChange(colorHarmony: string): void {
+    this.cpStore.dispatch(this.state, {type: 'COLOR_HARMONY_CHANGE', colorHarmony: colorHarmony})
+  }
+
+  onHarmonyTypeChange(harmonyType: string): void {
+    this.cpStore.dispatch(this.state, {type: 'HARMONY_TYPE_CHANGE', harmonyType: harmonyType})
+  }
+
+  selectColor(index: number): void {
     this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR', index: index})
   }
 
-  delete(index: number) {
+  selectPrimaryColor(): void {
+    this.cpStore.dispatch(this.state, {type: 'SELECT_PRIMARY_COLOR', index: this.state.selectedIndex})
+  }
+
+  delete(index: number): void {
     this.cpStore.dispatch(this.state, {type: 'DELETE_COLOR', index: index})
   }
 
-  ngOnInit() {
-    this.cpStore.stateEvent.subscribe((state) => {
-      this.state = state;
-    })
-    this.cpStore.dispatch(null, {type: 'INIT'})
+  deletePrimaryColor(): void {
+    this.cpStore.dispatch(this.state, {type: 'DELETE_PRIMARY_COLOR'})
   }
 
-  ngOnDestroy() {
-    this.cpStore.stateEvent.unsubscribe();
-  }
-
-  onOutputChange(output: string) {
+  onOutputChange(output: string): void {
     this.cpStore.dispatch(this.state, {type: 'CHANGE_OUTPUT', output: output});
   }
 
-  onAlphaChange(alpha: string) {
+  onAlphaChange(alpha: string): void {
     this.cpStore.dispatch(this.state, {type: 'CHANGE_ALPHA', alpha: alpha});
   }
-
-  // onOutputChange(output: string) {
-  //   let newColors: string[] = [];
-  //   switch (output){
-  //     case this.outputs[0]:
-  //       newColors = this.colors.map((color): any => {
-  //         return this.extractRgb(color);
-  //       }).map((rgb) => {
-  //         return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
-  //       });
-  //       break;
-  //     case this.outputs[1]:
-  //       newColors = this.colors.map((color): any => {
-  //         return this.hexToRgb(color);
-  //       }).map((rgb) => {
-  //         return 'rgb('+rgb.r+','+rgb.g+','+rgb.b+')';
-  //       });
-  //       break;
-  //   }
-  //
-  //   // this.colors = [];
-  //   // this.output = output;
-  //   // this.colors = newColors;
-  // }
-
-  // onAlphaChange(alpha: string) {
-  //   this.alpha = alpha;
-  // }
-
-  // changeColor(event) {
-  //   if (event.color) {
-  //     if (event.index || event.index === 0) {
-  //       this.colors[event.index] = event.color;
-  //     }
-  //   }
-  // }
-  //
-  // private hexToRgb(hex) {
-  //   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  //   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  //   hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-  //     return r + r + g + g + b + b;
-  //   });
-  //
-  //   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  //   return result ? {
-  //       r: parseInt(result[1], 16),
-  //       g: parseInt(result[2], 16),
-  //       b: parseInt(result[3], 16)
-  //     } : null;
-  // }
-  //
-  // private componentToHex(c) {
-  //   var hex = c.toString(16);
-  //   return hex.length == 1 ? "0" + hex : hex;
-  // }
-  //
-  // private rgbToHex(r, g, b) {
-  //   return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
-  // }
-  //
-  // private extractRgb(rgb: string) {
-  //   return rgb.substring(4, rgb.length-1)
-  //     .replace(/ /g, '')
-  //     .split(',');
-  // }
 }

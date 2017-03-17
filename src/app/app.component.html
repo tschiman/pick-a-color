@@ -1,32 +1,137 @@
 <section>
   <div class="container">
     <div class="row add-color">
-      <form class="form-inline">
-        <div class="form-group">
-          <select class="form-control" (change)="onOutputChange($event.target.value)" [value]="state.output">
-            <option *ngFor="let output of outputs">{{output}}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <select class="form-control" (change)="onAlphaChange($event.target.value)" [value]="state.alpha">
-            <option *ngFor="let alpha of alphas">{{alpha}}</option>
-          </select>
-        </div>
+      <div class="col-md-2">
+        <div class="row">
+          <div class="col-md-12">
+            <h3>Color Scheme</h3>
+            <form class="form">
+              <div class="form-group">
+                <select class="form-control"
+                        (change)="onColorHarmonyChange($event.target.value)"
+                        [value]="state.colorHarmony">
+                  <option *ngFor="let colorHarmony of colorHarmonies">{{colorHarmony}}</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" type="button" (click)="selectPrimaryColor()">Set Primary Color</button>
+              <div class="form-group"
+                   *ngIf="state && state.colorHarmony && (state.colorHarmony == 'Analogous' || state.colorHarmony == 'Tetradic') ">
+                <div class="radio">
+                  <label for="left">
+                    <input id="left" type="radio" name="harmonyType" value="left"
+                           [checked]="state.harmonyType === 'left'"
+                           (change)="onHarmonyTypeChange($event.target.value)"/>Left
+                  </label>
+                </div>
+                <div class="radio" [class.disabled]="state.colorHarmony === 'Tetradic'">
+                  <label for="center">
+                    <input id="center" type="radio" name="harmonyType" value="center"
+                           [checked]="state.harmonyType === 'center'" [disabled]="state.colorHarmony === 'Tetradic'"
+                           (change)="onHarmonyTypeChange($event.target.value)"/>Center
+                  </label>
+                </div>
+                <div class="radio">
+                  <label for="right">
+                    <input id="right" type="radio" name="harmonyType" value="right"
+                           [checked]="state.harmonyType === 'right'"
+                           (change)="onHarmonyTypeChange($event.target.value)"/>Right
+                  </label>
+                </div>
 
-        <button class="btn btn-primary" type="button" (click)="addColor()">Add Color</button>
-        <button class="btn btn-danger" type="button" (click)="clearColors()">Clear</button>
-      </form>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <h3>CSS Type</h3>
+            <form class="form">
+              <div class="form-group">
+                <select class="form-control" (change)="onOutputChange($event.target.value)" [value]="state.output">
+                  <option *ngFor="let output of outputs">{{output}}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <select class="form-control" (change)="onAlphaChange($event.target.value)" [value]="state.alpha">
+                  <option *ngFor="let alpha of alphas">{{alpha}}</option>
+                </select>
+              </div>
+
+              <button class="btn btn-primary" type="button" (click)="addColor()">Add Color</button>
+              <button class="btn btn-danger" type="button" (click)="clearColors()">Clear</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-10">
+        <div class="row">
+          <div *ngIf="state && state.primaryColor && state.colorHarmony" class="col-md-12 color-harmony">
+            <div class="col-md-3">
+              <h4>Primary</h4>
+              <button type="button" class="close" (click)="deletePrimaryColor()" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <div class="color-text">{{state.primaryColor}}</div>
+              <div class="color-container"
+                   [style.background]="state.primaryColor">&nbsp;</div>
+            </div>
+            <div *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome'" class="col-md-3">
+              <h4>Secondary</h4>
+              <div class="color-text">{{state.primaryColor}}</div>
+              <div class="color-container"
+                   [style.background]="state.primaryColor">&nbsp;</div>
+            </div>
+            <div
+              *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome' && state.colorHarmony !== 'Complimentary'"
+              class="col-md-3">
+              <h4>Tertiary</h4>
+              <div class="color-text">{{state.primaryColor}}</div>
+              <div class="color-container"
+                   [style.background]="state.primaryColor">&nbsp;</div>
+            </div>
+            <div *ngIf="state && state.primaryColor && state.colorHarmony == 'Tetradic'" class="col-md-3">
+              <h4>Quaternary</h4>
+              <div class="color-text">{{state.primaryColor}}</div>
+              <div class="color-container"
+                   [style.background]="state.primaryColor">&nbsp;</div>
+            </div>
+          </div>
+        </div>
+        <div class="row color-shades" *ngFor="let shadeArray of state.shadeArrays">
+          <div *ngIf="state && state.primaryColor && state.colorHarmony" class="col-md-12 color-harmony">
+            <div>
+              <div class="col-md-1 color-text">{{state.primaryColor}}</div>
+              <div class="col-md-2">
+                <div class="color-container" [style.background]="state.primaryColor">&nbsp;</div>
+              </div>
+            </div>
+            <div *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome'">
+              <div class="col-md-1 color-text">{{state.primaryColor}}</div>
+              <div class="col-md-2">
+                <div class="color-container" [style.background]="state.primaryColor">&nbsp;</div>
+              </div>
+            </div>
+            <div
+              *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome' && state.colorHarmony !== 'Complimentary'">
+              <div class="col-md-1 color-text">{{state.primaryColor}}</div>
+              <div class="col-md-2">
+                <div class="color-container" [style.background]="state.primaryColor">&nbsp;</div>
+              </div>
+            </div>
+            <div *ngIf="state && state.primaryColor && state.colorHarmony == 'Tetradic'">
+              <div class="col-md-1 color-text">{{state.primaryColor}}</div>
+              <div class="col-md-2">
+                <div class="color-container" [style.background]="state.primaryColor">&nbsp;</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="row color-scheme">
-      <div class="col-md-12">
-        <form class="form-inline">
-          <div class="form-group">
-            <select class="form-control" (change)="onColorHarmonyChange($event.target.value)"
-                    [value]="state.colorHarmony">
-              <option *ngFor="let output of colorHarmonies">{{colorHarmonies}}</option>
-            </select>
-          </div>
-        </form>
+
+      <div class="row">
+
       </div>
     </div>
     <div class="row">
@@ -48,7 +153,7 @@
             </button>
             <div class="color-text">{{state.colors[i]}}</div>
             <div class="color-container"
-                 [class.selected]="(state.selectedIndex || state.selectedIndex === 0) && state.selectedIndex === i"
+                 [class.selected]="state.selectedIndex === i"
                  [style.background]="state.colors[i]"
                  (click)="selectColor(i)">&nbsp;</div>
           </div>

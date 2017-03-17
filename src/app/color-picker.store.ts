@@ -15,7 +15,7 @@ export class ColorPickerStore {
     return this.state;
   }
 
-  dispatch(currentState: any, action: any) { //{type: string, any}
+  dispatch(currentState: any, action: any): any { //{type: string, any}
     if (!currentState) {
       try {
         currentState = JSON.parse(localStorage.getItem('state'));
@@ -24,7 +24,16 @@ export class ColorPickerStore {
         currentState = null
       }
       if (!currentState) {
-        currentState = {colors: [], output: 'hex', alpha: 'hex6', selectedIndex: null};
+        currentState = {
+          colors: [],
+          output: 'hex',
+          alpha: 'hex6',
+          colorHarmony: 'Monochrome',
+          primaryColor: null,
+          selectedIndex: null,
+          shadeArrays: [['#8b385d', '#8b385d', '#8b385d', '#8b385d']],
+          harmonyType: 'left'
+        };
       }
     }
 
@@ -34,11 +43,13 @@ export class ColorPickerStore {
     switch (action.type) {
       case 'ADD_COLOR':
         newColors = currentState.colors.slice(0);
-        newColors.push(
-          this.cpService.outputFormat(
-            this.cpService.stringToHsva(action.color, currentState.alpha === 'hex8'), currentState.output, currentState.alpha === 'hex8'
-          )
-        );
+
+        let hex8Format: Hsva = this.cpService.stringToHsva(action.color, true); //if hex8 formatting returns null then we likely have a hex6 string.
+        if (hex8Format) {
+          newColors.push(this.cpService.outputFormat(hex8Format, currentState.output, true));
+        } else {
+          newColors.push(this.cpService.outputFormat(this.cpService.stringToHsva(action.color, false), currentState.output, false));
+        }
         newState = Object.assign({}, currentState, {colors: newColors, selectedIndex: (newColors.length - 1)});
         break;
       case 'DELETE_COLOR':
@@ -84,6 +95,33 @@ export class ColorPickerStore {
       case 'CLEAR_COLORS':
         newState = Object.assign({}, currentState, {colors: []});
         break;
+      case 'DELETE_PRIMARY_COLOR':
+        newState = Object.assign({}, currentState, {primaryColor: null});
+        break;
+      case 'SELECT_PRIMARY_COLOR':
+        //if index is not null and the selected color is not the exact same as the current primary color update the primary color. If not do nothing
+        if (action.index != null && currentState.colors[action.index] !== currentState.primaryColor) {
+          //generate the appropriate colors
+          newState = Object.assign({}, currentState, {primaryColor: currentState.colors[action.index]});
+          newState = this.updateShadeArrays(newState, {
+            harmonyType: currentState.harmonyType,
+            colorHarmony: currentState.colorHarmony
+          })
+        } else {
+          newState = Object.assign({}, currentState);
+        }
+
+        break;
+      case 'COLOR_HARMONY_CHANGE':
+        if (currentState.harmonyType === 'center' && action.colorHarmony === 'Tetradic') {
+          newState = Object.assign({}, currentState, {colorHarmony: action.colorHarmony, harmonyType: 'left'});
+        } else {
+          newState = Object.assign({}, currentState, {colorHarmony: action.colorHarmony});
+        }
+        break;
+      case 'HARMONY_TYPE_CHANGE':
+        newState = Object.assign({}, currentState, {harmonyType: action.harmonyType});
+        break;
       case 'INIT':
         newState = Object.assign({}, currentState);
         break;
@@ -93,7 +131,16 @@ export class ColorPickerStore {
     localStorage.setItem('state', JSON.stringify(this.state));
   }
 
-  private changeOutput(currentState: any, action: any, forceChange: boolean) {
+  private updateShadeArrays(currentState: any, action: any): any {
+    action.harmonyType;
+    action.colorHarmony;
+    let newShadeArray = [];
+
+
+    return Object.assign({}, currentState, {shadeArray: newShadeArray})
+  }
+
+  private changeOutput(currentState: any, action: any, forceChange: boolean): any {
     let newColors: string[];
     if ((currentState.output !== action.output) || forceChange) {
       newColors = currentState.colors.map((color: string) => {
