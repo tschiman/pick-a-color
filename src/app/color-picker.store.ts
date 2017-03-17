@@ -92,7 +92,12 @@ export class ColorPickerStore {
           newState = Object.assign({}, currentState, {colors: newColors, alpha: action.alpha});
           newState = this.changeOutput(newState, {output: newState.output}, true)
         } else {
-          newState = Object.assign({}, currentState);
+          newState = this.updateShadeArrays(currentState, {
+            type: 'UPDATE_SHADE_ARRAY',
+            harmonyType: currentState.harmonyType,
+            colorHarmony: currentState.colorHarmony,
+            primaryColor: currentState.primaryColor
+          }, true);
         }
         break;
       case 'CLEAR_COLORS':
@@ -110,7 +115,7 @@ export class ColorPickerStore {
             harmonyType: currentState.harmonyType,
             colorHarmony: currentState.colorHarmony,
             primaryColor: currentState.colors[action.index]
-          });
+          }, false);
           //update the primary color selection
           newState = Object.assign({}, newState, {primaryColor: currentState.colors[action.index]});
         } else {
@@ -125,7 +130,7 @@ export class ColorPickerStore {
           harmonyType: currentState.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: currentState.primaryColor
-        });
+        }, false);
         if (currentState.harmonyType === 'center' && action.colorHarmony === 'Tetradic') {
           newState = Object.assign({}, newState, {colorHarmony: action.colorHarmony, harmonyType: 'left'});
         } else {
@@ -139,7 +144,7 @@ export class ColorPickerStore {
           harmonyType: action.harmonyType,
           colorHarmony: currentState.colorHarmony,
           primaryColor: currentState.primaryColor
-        });
+        }, false);
         newState = Object.assign({}, newState, {harmonyType: action.harmonyType});
         break;
       case 'INIT':
@@ -151,7 +156,7 @@ export class ColorPickerStore {
     localStorage.setItem('state', JSON.stringify(this.state));
   }
 
-  private updateShadeArrays(currentState: any, action: any): any {
+  private updateShadeArrays(currentState: any, action: any, forceUpdate: boolean): any {
     let primaryColor: Hsva;
     let complimentaryColor: Hsva;
     let splitCompliment2: Hsva;
@@ -165,7 +170,7 @@ export class ColorPickerStore {
     let tetradic4: Hsva;
 
     let noChanges: boolean = action.primaryColor === currentState.primaryColor && action.colorHarmony === currentState.colorHarmony && action.harmonyType === currentState.harmonyType;
-    if (noChanges) return Object.assign({}, currentState);
+    if (noChanges && !forceUpdate) return Object.assign({}, currentState);
 
     if (action.primaryColor) {
       primaryColor = this.cpService.stringToHsva(action.primaryColor, true); //if hex8 formatting returns null then we likely have a hex6 string.
@@ -339,16 +344,26 @@ export class ColorPickerStore {
 
   private changeOutput(currentState: any, action: any, forceChange: boolean): any {
     let newColors: string[];
+    let newState: any;
+
     if ((currentState.output !== action.output) || forceChange) {
       newColors = currentState.colors.map((color: string) => {
         return this.cpService.stringToHsva(color, currentState.alpha === 'hex8');
       }).map((hsva: Hsva) => {
         return this.cpService.outputFormat(hsva, action.output, currentState.alpha === 'hex8')
       });
-      return Object.assign({}, currentState, {colors: newColors, output: action.output});
+      newState = Object.assign({}, currentState, {colors: newColors, output: action.output});
     } else {
-      return Object.assign({}, currentState);
+      newState = Object.assign({}, currentState);
     }
+
+    //generate the appropriate colors
+    return this.updateShadeArrays(newState, {
+      type: 'UPDATE_SHADE_ARRAY',
+      harmonyType: currentState.harmonyType,
+      colorHarmony: currentState.colorHarmony,
+      primaryColor: currentState.primaryColor
+    }, true);
   }
 
   private convertHue(input: number, degreesToRotate: number) {
