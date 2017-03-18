@@ -5,6 +5,7 @@ import {HttpModule} from "@angular/http";
 import {AppComponent} from "./app.component";
 import {ColorPickerModule} from "angular2-color-picker";
 import {ColorPickerStore} from "./color-picker.store";
+import {ClipboardModule} from "ngx-clipboard";
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import {ColorPickerStore} from "./color-picker.store";
     BrowserModule,
     FormsModule,
     HttpModule,
-    ColorPickerModule
+    ColorPickerModule,
+    ClipboardModule
   ],
   providers: [ColorPickerStore],
   bootstrap: [AppComponent]

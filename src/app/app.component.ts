@@ -1,5 +1,6 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Component, OnInit, OnDestroy, ElementRef} from "@angular/core";
 import {ColorPickerStore} from "./color-picker.store";
+import {Clipboard} from "ngx-clipboard";
 
 @Component({
   selector: 'app-root',
@@ -9,12 +10,12 @@ import {ColorPickerStore} from "./color-picker.store";
 export class AppComponent implements OnInit, OnDestroy{
 
   state: any;
-  color: '#ffffff';
   outputs: string[] = ['hex', 'rgba', 'hsla'];
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
   colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
 
-  constructor(private cpStore: ColorPickerStore){}
+  constructor(private cpStore: ColorPickerStore, private elmRef: ElementRef) {
+  }
 
   ngOnInit() {
     this.cpStore.stateEvent.subscribe((state) => {
@@ -51,6 +52,11 @@ export class AppComponent implements OnInit, OnDestroy{
     this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR', index: index})
   }
 
+  selectColorSpread(spreadColor: string) {
+    this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR_SPREAD', spreadColor: spreadColor})
+  }
+
+
   selectPrimaryColor(color: string): void {
     this.cpStore.dispatch(this.state, {type: 'SELECT_PRIMARY_COLOR', primaryColor: color})
   }
@@ -74,4 +80,10 @@ export class AppComponent implements OnInit, OnDestroy{
   onAlphaChange(alpha: string): void {
     this.cpStore.dispatch(this.state, {type: 'CHANGE_ALPHA', alpha: alpha});
   }
+
+  onCopy(color: string, srcElement: Element): void {
+    let payload = {text: () => color};
+    new Clipboard(srcElement, payload);
+  }
+
 }

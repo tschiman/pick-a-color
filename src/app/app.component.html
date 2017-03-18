@@ -7,6 +7,13 @@
             <h3>Color Harmony</h3>
             <form class="form">
               <div class="form-group">
+                <input title="Select the primary color"
+                       [colorPicker]="state.primaryColor"
+                       [style.background]="state.primaryColor"
+                       (colorPickerChange)="selectPrimaryColor($event)"/>
+                <div class="color-text">{{state.primaryColor}}</div>
+              </div>
+              <div class="form-group">
                 <select class="form-control"
                         (change)="onColorHarmonyChange($event.target.value)"
                         [value]="state.colorHarmony">
@@ -36,13 +43,6 @@
                            (change)="onHarmonyTypeChange($event.target.value)"/>Right
                   </label>
                 </div>
-              </div>
-              <div class="form-group">
-                <input title="Select the primary color"
-                       [colorPicker]="state.primaryColor"
-                       [style.background]="state.primaryColor"
-                       (colorPickerChange)="selectPrimaryColor($event)"/>
-                <div class="color-text">{{state.primaryColor}}</div>
               </div>
               <div class="form-group">
                 <label for="swatchCount">Swatch Count: {{state.swatchCount}}</label>
@@ -76,30 +76,38 @@
             <div class="col-md-3">
               <h4>Primary</h4>
               <div class="color-text">{{state.primaryColor}}</div>
-              <div class="color-container"
-                   [style.background]="state.primaryColor">&nbsp;</div>
+              <div class="color-container color-container-selectable"
+                   [style.background]="state.primaryColor"
+                   (click)="selectColorSpread(state.primaryColor); onCopy(state.primaryColor, $event.srcElement);">
+                &nbsp;</div>
             </div>
             <div *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome' && state.secondaryColor"
                  class="col-md-3">
               <h4>Secondary</h4>
               <div class="color-text">{{state.secondaryColor}}</div>
-              <div class="color-container"
-                   [style.background]="state.secondaryColor">&nbsp;</div>
+              <div class="color-container color-container-selectable"
+                   [style.background]="state.secondaryColor"
+                   (click)="selectColorSpread(state.secondaryColor); onCopy(state.secondaryColor, $event.srcElement);">
+                &nbsp;</div>
             </div>
             <div
               *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome' && state.colorHarmony !== 'Complimentary' && state.tertiaryColor"
               class="col-md-3">
               <h4>Tertiary</h4>
               <div class="color-text">{{state.tertiaryColor}}</div>
-              <div class="color-container"
-                   [style.background]="state.tertiaryColor">&nbsp;</div>
+              <div class="color-container color-container-selectable"
+                   [style.background]="state.tertiaryColor"
+                   (click)="selectColorSpread(state.tertiaryColor); onCopy(state.tertiaryColor, $event.srcElement);">
+                &nbsp;</div>
             </div>
             <div *ngIf="state && state.primaryColor && state.colorHarmony == 'Tetradic' && state.quaternaryColor"
                  class="col-md-3">
               <h4>Quaternary</h4>
               <div class="color-text">{{state.quaternaryColor}}</div>
-              <div class="color-container"
-                   [style.background]="state.quaternaryColor">&nbsp;</div>
+              <div class="color-container color-container-selectable"
+                   [style.background]="state.quaternaryColor"
+                   (click)="selectColorSpread(state.quaternaryColor); onCopy(state.quaternaryColor, $event.srcElement);">
+                &nbsp;</div>
             </div>
           </div>
         </div>
@@ -108,36 +116,54 @@
             <div>
               <div class="col-md-2 color-text">{{shadeArray[0]}}</div>
               <div class="col-md-1">
-                <div class="color-container" [style.background]="shadeArray[0]">&nbsp;</div>
+                <div class="color-container" [style.background]="shadeArray[0]"
+                     (click)="onCopy(shadeArray[0], $event.srcElement)">&nbsp;</div>
               </div>
             </div>
             <div *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome'">
               <div class="col-md-2 color-text">{{shadeArray[1]}}</div>
               <div class="col-md-1">
-                <div class="color-container" [style.background]="shadeArray[1]">&nbsp;</div>
+                <div class="color-container" [style.background]="shadeArray[1]"
+                     (click)="onCopy(shadeArray[1], $event.srcElement)">&nbsp;</div>
               </div>
             </div>
             <div
               *ngIf="state && state.primaryColor && state.colorHarmony !== 'Monochrome' && state.colorHarmony !== 'Complimentary'">
               <div class="col-md-2 color-text">{{shadeArray[2]}}</div>
               <div class="col-md-1">
-                <div class="color-container" [style.background]="shadeArray[2]">&nbsp;</div>
+                <div class="color-container" [style.background]="shadeArray[2]"
+                     (click)="onCopy(shadeArray[2], $event.srcElement)">&nbsp;</div>
               </div>
             </div>
             <div *ngIf="state && state.primaryColor && state.colorHarmony == 'Tetradic'">
               <div class="col-md-2 color-text">{{shadeArray[3]}}</div>
               <div class="col-md-1">
-                <div class="color-container" [style.background]="shadeArray[3]">&nbsp;</div>
+                <div class="color-container" [style.background]="shadeArray[3]"
+                     (click)="onCopy(shadeArray[3], $event.srcElement)">&nbsp;</div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row color-harmony">
-
-      <div class="row">
-
+    <div *ngIf="state && state.spreadColors" class="row color-spread">
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-11 col-md-offset-1 text-center">&#x2192;Light&#x2192;</div>
+        </div>
+        <div class="row">
+          <div class="col-md-1 vertical-text text-center align-middle">&#x2192;Saturation&#x2192;</div>
+          <div class="col-md-11">
+            <div *ngFor="let spreadColor of state.spreadColors" class="row"> <!--row for the-->
+              <div *ngFor="let color of spreadColor" class="col-md-1">
+                <br>
+                <input type="hidden" [value]="color" #colorInput>
+                <div title="Click to copy" class="color-container" (click)="onCopy(colorInput.value, $event.srcElement)"
+                     [style.background]="color">&nbsp;</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

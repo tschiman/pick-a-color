@@ -23,14 +23,22 @@ div.color-text {
   border: 1px solid #000000;
 }
 
-div.color-container.selected {
+div.color-container-selectable.selected {
   border: 1px solid #5bc0de;
 }
 
-.color-container:hover {
+.color-container-selectable:hover {
   border: 1px solid #8c8c8c;
 }
 
 form {
   margin-bottom:15px;
+}
+
+.vertical-text {
+  -webkit-transform: rotate(-270deg);
+  -moz-transform: rotate(-270deg);
+  -ms-transform: rotate(-270deg);
+  -o-transform: rotate(-270deg);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }

@@ -30,6 +30,7 @@ export class ColorPickerStore {
           alpha: 'hex6',
           colorHarmony: 'Monochrome',
           primaryColor: null,
+          spreadColor: null,
           complimentaryColor: null,
           tertiaryColor: null,
           quaternaryColor: null,
@@ -75,7 +76,8 @@ export class ColorPickerStore {
         newState = Object.assign({}, currentState);
         break;
       case 'CHANGE_OUTPUT':
-        newState = this.changeOutput(currentState, action, false);
+        newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
+        newState = this.changeOutput(newState, action, false);
         break;
       case 'CHANGE_ALPHA':
         if (currentState.alpha !== action.alpha) {
@@ -90,6 +92,7 @@ export class ColorPickerStore {
             return this.cpService.outputFormat(hsva, action.output, action.alpha === 'hex8')
           });
 
+          newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
           newState = Object.assign({}, currentState, {colors: newColors, alpha: action.alpha});
           newState = this.changeOutput(newState, {output: newState.output}, true)
         } else {
@@ -162,6 +165,16 @@ export class ColorPickerStore {
         }, true);
         newState = Object.assign({}, newState, {swatchCount: action.swatchCount, shadeArrays: newState.shadeArrays});
         break;
+      case 'SELECT_COLOR_SPREAD':
+        let spreadColor: string = currentState.spreadColor === action.spreadColor ? null : action.spreadColor; //If I select the spread color twice deselect the spread
+        if (spreadColor) {
+          //create the spread
+          newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: spreadColor});
+          newState = Object.assign({}, newState, {spreadColor: spreadColor});
+        } else {
+          newState = Object.assign({}, currentState, {spreadColor: spreadColor, colors: []});
+        }
+        break;
       case 'INIT':
         newState = Object.assign({}, currentState);
         break;
@@ -169,6 +182,33 @@ export class ColorPickerStore {
     this.state = newState;
     this.stateEvent.emit(this.state);
     localStorage.setItem('state', JSON.stringify(this.state));
+  }
+
+  private createSpread(currentState: any, action: any): any {
+    if (action.spreadColor) {
+      let spreadColor: Hsva;
+      spreadColor = this.cpService.stringToHsva(action.spreadColor, true); //if hex8 formatting returns null then we likely have a hex6 string.
+      if (!spreadColor) {
+        spreadColor = this.cpService.stringToHsva(action.spreadColor, false);
+      }
+
+      let spreadColors: string[][] = [];
+      for (let i = 0; i < 12; i++) { //every ith row will have a unique saturation
+        let saturation: number = ((i * (100 / 12))) / 100;
+        let spreadColorRow: string[] = [];
+        for (let j = 0; j < 12; j++) { //every jth column will have a unique lightness
+          let value: number = ((j * (100 / 12))) / 100;
+          spreadColorRow[j] = this.cpService.outputFormat(
+            new Hsva(spreadColor.h, saturation, value, spreadColor.a), currentState.output, currentState.alpha === 'hex8'
+          )
+        }
+        spreadColors[i] = spreadColorRow;
+      }
+
+      return Object.assign({}, currentState, {spreadColors: spreadColors});
+    } else {
+      return Object.assign({}, currentState)
+    }
   }
 
   private updateShadeArrays(currentState: any, action: any, forceUpdate: boolean): any {
