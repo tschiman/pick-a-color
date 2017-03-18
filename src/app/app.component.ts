@@ -9,6 +9,7 @@ import {ColorPickerStore} from "./color-picker.store";
 export class AppComponent implements OnInit, OnDestroy{
 
   state: any;
+  color: '#ffffff';
   outputs: string[] = ['hex', 'rgba', 'hsla'];
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
   colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
@@ -50,8 +51,12 @@ export class AppComponent implements OnInit, OnDestroy{
     this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR', index: index})
   }
 
-  selectPrimaryColor(): void {
-    this.cpStore.dispatch(this.state, {type: 'SELECT_PRIMARY_COLOR', index: this.state.selectedIndex})
+  selectPrimaryColor(color: string): void {
+    this.cpStore.dispatch(this.state, {type: 'SELECT_PRIMARY_COLOR', primaryColor: color})
+  }
+
+  onSwatchCountChange(swatchCount: number) {
+    this.cpStore.dispatch(this.state, {type: 'SELECT_SWATCH_COUNT', swatchCount: swatchCount})
   }
 
   delete(index: number): void {
