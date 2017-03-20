@@ -25,7 +25,6 @@ export class ColorPickerStore {
       }
       if (!currentState) {
         currentState = {
-          colors: [],
           output: 'hex',
           alpha: 'hex6',
           colorHarmony: 'Monochrome',
@@ -43,105 +42,31 @@ export class ColorPickerStore {
     }
 
     let newState: any;
-    let newColors: string[];
 
     switch (action.type) {
       case 'SELECT_COLOR':
         newState = Object.assign({}, currentState, {selectedIndex: action.index});
         break;
       case 'CHANGE_OUTPUT':
-        newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
-        newState = this.changeOutput(newState, action, false);
+        newState = this.changeOutputReducer(currentState, action);
         break;
       case 'CHANGE_ALPHA':
-        if (currentState.alpha !== action.alpha) {
-          newColors = currentState.colors.map((color: string) => {
-            let hex8Format = this.cpService.stringToHsva(color, true); //if hex8 formatting returns null then we likely have a hex6 string.
-            if (hex8Format) {
-              return hex8Format;
-            } else {
-              return this.cpService.stringToHsva(color, false); //rerun in hex6 mode
-            }
-          }).map((hsva: Hsva) => {
-            return this.cpService.outputFormat(hsva, action.output, action.alpha === 'hex8')
-          });
-
-          newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
-          newState = Object.assign({}, currentState, {colors: newColors, alpha: action.alpha});
-          newState = this.changeOutput(newState, {output: newState.output}, true)
-        } else {
-          newState = this.updateShadeArrays(currentState, {
-            type: 'UPDATE_SHADE_ARRAY',
-            harmonyType: currentState.harmonyType,
-            colorHarmony: currentState.colorHarmony,
-            primaryColor: currentState.primaryColor,
-            swatchCount: currentState.swatchCount
-          }, true);
-        }
+        newState = this.changeAlphaReducer(currentState, action);
         break;
       case 'SELECT_PRIMARY_COLOR':
-        //if index is not null and the selected color is not the exact same as the current primary color update the primary color. If not do nothing
-        if (action.primaryColor != null && action.primaryColor !== currentState.primaryColor) {
-          //generate the appropriate colors
-          newState = this.updateShadeArrays(currentState, {
-            type: 'UPDATE_SHADE_ARRAY',
-            harmonyType: currentState.harmonyType,
-            colorHarmony: currentState.colorHarmony,
-            primaryColor: action.primaryColor,
-            swatchCount: currentState.swatchCount
-          }, false);
-          //update the primary color selection
-          newState = Object.assign({}, newState, {primaryColor: action.primaryColor});
-        } else {
-          newState = Object.assign({}, currentState);
-        }
-
+        newState = this.selectPrimaryColorReducer(currentState, action);
         break;
       case 'COLOR_HARMONY_CHANGE':
-        //update the shade arrays for the new color harmony
-        newState = this.updateShadeArrays(currentState, {
-          type: 'UPDATE_SHADE_ARRAY',
-          harmonyType: currentState.harmonyType,
-          colorHarmony: action.colorHarmony,
-          primaryColor: currentState.primaryColor,
-          swatchCount: currentState.swatchCount
-        }, false);
-        if (currentState.harmonyType === 'center' && action.colorHarmony === 'Tetradic') {
-          newState = Object.assign({}, newState, {colorHarmony: action.colorHarmony, harmonyType: 'left'});
-        } else {
-          newState = Object.assign({}, newState, {colorHarmony: action.colorHarmony});
-        }
+        newState = this.colorHarmonyChangeReducer(currentState, action);
         break;
       case 'HARMONY_TYPE_CHANGE':
-        //update the shade arrays for the new color harmony
-        newState = this.updateShadeArrays(currentState, {
-          type: 'UPDATE_SHADE_ARRAY',
-          harmonyType: action.harmonyType,
-          colorHarmony: currentState.colorHarmony,
-          primaryColor: currentState.primaryColor,
-          swatchCount: currentState.swatchCount
-        }, false);
-        newState = Object.assign({}, newState, {harmonyType: action.harmonyType});
+        newState = this.harmonyTypeChangeReducer(currentState, action);
         break;
       case 'SELECT_SWATCH_COUNT':
-        newState = this.updateShadeArrays(currentState, {
-          type: 'UPDATE_SHADE_ARRAY',
-          harmonyType: currentState.harmonyType,
-          colorHarmony: currentState.colorHarmony,
-          primaryColor: currentState.primaryColor,
-          swatchCount: action.swatchCount
-        }, true);
-        newState = Object.assign({}, newState, {swatchCount: action.swatchCount, shadeArrays: newState.shadeArrays});
+        newState = this.selectSwatchCountReducer(currentState, action);
         break;
       case 'SELECT_COLOR_SPREAD':
-        let spreadColor: string = currentState.spreadColor === action.spreadColor ? null : action.spreadColor; //If I select the spread color twice deselect the spread
-        if (spreadColor) {
-          //create the spread
-          newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: spreadColor});
-          newState = Object.assign({}, newState, {spreadColor: spreadColor});
-        } else {
-          newState = Object.assign({}, currentState, {spreadColor: spreadColor, colors: []});
-        }
+        newState = this.selectColorSpread(currentState, action);
         break;
       case 'INIT':
         newState = Object.assign({}, currentState);
@@ -150,6 +75,55 @@ export class ColorPickerStore {
     this.state = newState;
     this.stateEvent.emit(this.state);
     localStorage.setItem('state', JSON.stringify(this.state));
+  }
+
+  private harmonyTypeChangeReducer(currentState: any, action: any) {
+    //update the shade arrays for the new color harmony
+    let newState = this.updateShadeArrays(currentState, {
+      type: 'UPDATE_SHADE_ARRAY',
+      harmonyType: action.harmonyType,
+      colorHarmony: currentState.colorHarmony,
+      primaryColor: currentState.primaryColor,
+      swatchCount: currentState.swatchCount
+    }, false);
+    return Object.assign({}, newState, {harmonyType: action.harmonyType});
+  }
+
+  private colorHarmonyChangeReducer(currentState: any, action: any) {
+    //update the shade arrays for the new color harmony
+    let newState = this.updateShadeArrays(currentState, {
+      type: 'UPDATE_SHADE_ARRAY',
+      harmonyType: currentState.harmonyType,
+      colorHarmony: action.colorHarmony,
+      primaryColor: currentState.primaryColor,
+      swatchCount: currentState.swatchCount
+    }, false);
+    if (currentState.harmonyType === 'center' && action.colorHarmony === 'Tetradic') {
+      return Object.assign({}, newState, {colorHarmony: action.colorHarmony, harmonyType: 'left'});
+    } else {
+      return Object.assign({}, newState, {colorHarmony: action.colorHarmony});
+    }
+  }
+
+  private selectPrimaryColorReducer(currentState: any, action: any) {
+    //if index is not null and the selected color is not the exact same as the current primary color update the primary color. If not do nothing
+    if (action.primaryColor != null && action.primaryColor !== currentState.primaryColor) {
+      //generate the appropriate colors
+      return this.updateShadeArrays(currentState, {
+        type: 'UPDATE_SHADE_ARRAY',
+        harmonyType: currentState.harmonyType,
+        colorHarmony: currentState.colorHarmony,
+        primaryColor: action.primaryColor,
+        swatchCount: currentState.swatchCount
+      }, false);
+    } else {
+      return Object.assign({}, currentState);
+    }
+  }
+
+  private changeOutputReducer(currentState: any, action: any) {
+    let newState: any = this.changeOutput(currentState, action, false);
+    return this.createSpread(newState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
   }
 
   private createSpread(currentState: any, action: any): any {
@@ -173,7 +147,10 @@ export class ColorPickerStore {
         spreadColors[i] = spreadColorRow;
       }
 
-      return Object.assign({}, currentState, {spreadColors: spreadColors});
+      return Object.assign({}, currentState, {
+        spreadColors: spreadColors,
+        spreadColor: this.cpService.outputFormat(spreadColor, currentState.output, currentState.alpha === 'hex8')
+      });
     } else {
       return Object.assign({}, currentState)
     }
@@ -265,7 +242,7 @@ export class ColorPickerStore {
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
+          primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(complimentaryColor, currentState.output, currentState.alpha === 'hex8'),
           shadeArrays: newShadeArray
         });
@@ -286,7 +263,7 @@ export class ColorPickerStore {
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
+          primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(splitCompliment2, currentState.output, currentState.alpha === 'hex8'),
           tertiaryColor: this.cpService.outputFormat(splitCompliment3, currentState.output, currentState.alpha === 'hex8'),
           shadeArrays: newShadeArray
@@ -308,7 +285,7 @@ export class ColorPickerStore {
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
+          primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(triadicColor2, currentState.output, currentState.alpha === 'hex8'),
           tertiaryColor: this.cpService.outputFormat(triadicColor3, currentState.output, currentState.alpha === 'hex8'),
           shadeArrays: newShadeArray
@@ -330,7 +307,7 @@ export class ColorPickerStore {
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
+          primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(analogous2, currentState.output, currentState.alpha === 'hex8'),
           tertiaryColor: this.cpService.outputFormat(analogous3, currentState.output, currentState.alpha === 'hex8'),
           shadeArrays: newShadeArray
@@ -355,7 +332,7 @@ export class ColorPickerStore {
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
+          primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(tetradic2, currentState.output, currentState.alpha === 'hex8'),
           tertiaryColor: this.cpService.outputFormat(tetradic3, currentState.output, currentState.alpha === 'hex8'),
           quaternaryColor: this.cpService.outputFormat(tetradic4, currentState.output, currentState.alpha === 'hex8'),
@@ -367,16 +344,10 @@ export class ColorPickerStore {
   }
 
   private changeOutput(currentState: any, action: any, forceChange: boolean): any {
-    let newColors: string[];
     let newState: any;
 
     if ((currentState.output !== action.output) || forceChange) {
-      newColors = currentState.colors.map((color: string) => {
-        return this.cpService.stringToHsva(color, currentState.alpha === 'hex8');
-      }).map((hsva: Hsva) => {
-        return this.cpService.outputFormat(hsva, action.output, currentState.alpha === 'hex8')
-      });
-      newState = Object.assign({}, currentState, {colors: newColors, output: action.output});
+      newState = Object.assign({}, currentState, {output: action.output});
     } else {
       newState = Object.assign({}, currentState);
     }
@@ -393,5 +364,45 @@ export class ColorPickerStore {
 
   private convertHue(input: number, degreesToRotate: number) {
     return (((input * 360) + degreesToRotate) % 360) / 360
+  }
+
+  private changeAlphaReducer(currentState: any, action: any) {
+    let newState: any;
+
+    if (currentState.alpha !== action.alpha) {
+      newState = Object.assign({}, currentState, {alpha: action.alpha});
+      newState = this.createSpread(newState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
+      return this.changeOutput(newState, {output: newState.output}, true)
+    } else {
+      return this.updateShadeArrays(currentState, {
+        type: 'UPDATE_SHADE_ARRAY',
+        harmonyType: currentState.harmonyType,
+        colorHarmony: currentState.colorHarmony,
+        primaryColor: currentState.primaryColor,
+        swatchCount: currentState.swatchCount
+      }, true);
+    }
+  }
+
+  private selectSwatchCountReducer(currentState: any, action: any) {
+    let newState = this.updateShadeArrays(currentState, {
+      type: 'UPDATE_SHADE_ARRAY',
+      harmonyType: currentState.harmonyType,
+      colorHarmony: currentState.colorHarmony,
+      primaryColor: currentState.primaryColor,
+      swatchCount: action.swatchCount
+    }, true);
+    return Object.assign({}, newState, {swatchCount: action.swatchCount, shadeArrays: newState.shadeArrays});
+  }
+
+  private selectColorSpread(currentState: any, action: any) {
+    let spreadColor: string = currentState.spreadColor === action.spreadColor ? null : action.spreadColor; //If I select the spread color twice deselect the spread
+    if (spreadColor) {
+      //create the spread
+      let newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: spreadColor});
+      return Object.assign({}, newState, {spreadColor: spreadColor});
+    } else {
+      return Object.assign({}, currentState, {spreadColor: spreadColor});
+    }
   }
 }
