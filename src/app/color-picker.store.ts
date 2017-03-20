@@ -29,7 +29,7 @@ export class ColorPickerStore {
           output: 'hex',
           alpha: 'hex6',
           colorHarmony: 'Monochrome',
-          primaryColor: null,
+          primaryColor: '#fff',
           spreadColor: null,
           complimentaryColor: null,
           tertiaryColor: null,

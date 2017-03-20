@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ElementRef} from "@angular/core";
+import {Component, OnInit, OnDestroy, ElementRef, ChangeDetectorRef} from "@angular/core";
 import {ColorPickerStore} from "./color-picker.store";
 import {Clipboard} from "ngx-clipboard";
 
@@ -14,12 +14,13 @@ export class AppComponent implements OnInit, OnDestroy{
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
   colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
 
-  constructor(private cpStore: ColorPickerStore, private elmRef: ElementRef) {
+  constructor(private cpStore: ColorPickerStore, private elmRef: ElementRef, private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
     this.cpStore.stateEvent.subscribe((state) => {
       this.state = state;
+      this.changeDetector.detectChanges();
     });
     this.cpStore.dispatch(null, {type: 'INIT'})
   }
