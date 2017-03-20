@@ -46,34 +46,8 @@ export class ColorPickerStore {
     let newColors: string[];
 
     switch (action.type) {
-      case 'ADD_COLOR':
-        newColors = currentState.colors.slice(0);
-
-        let hex8Format: Hsva = this.cpService.stringToHsva(action.color, true); //if hex8 formatting returns null then we likely have a hex6 string.
-        if (hex8Format) {
-          newColors.push(this.cpService.outputFormat(hex8Format, currentState.output, true));
-        } else {
-          newColors.push(this.cpService.outputFormat(this.cpService.stringToHsva(action.color, false), currentState.output, false));
-        }
-        newState = Object.assign({}, currentState, {colors: newColors, selectedIndex: (newColors.length - 1)});
-        break;
-      case 'DELETE_COLOR':
-        newColors = [
-          ...currentState.colors.slice(0, action.index),
-          ...currentState.colors.slice(action.index + 1)
-        ] //remove the color from the array
-
-        //determine new selected index
-        let newSelectedIndex = newColors.length - 1; //set the new index to the max it could be
-        if (action.index <= newSelectedIndex) newSelectedIndex = action.index; //if we are inbetween then select the same position as what we deleted
-
-        newState = Object.assign({}, currentState, {colors: newColors, selectedIndex: newSelectedIndex});
-        break;
       case 'SELECT_COLOR':
         newState = Object.assign({}, currentState, {selectedIndex: action.index});
-        break;
-      case 'CHANGE_COLOR':
-        newState = Object.assign({}, currentState);
         break;
       case 'CHANGE_OUTPUT':
         newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
@@ -104,12 +78,6 @@ export class ColorPickerStore {
             swatchCount: currentState.swatchCount
           }, true);
         }
-        break;
-      case 'CLEAR_COLORS':
-        newState = Object.assign({}, currentState, {colors: []});
-        break;
-      case 'DELETE_PRIMARY_COLOR':
-        newState = Object.assign({}, currentState, {primaryColor: null});
         break;
       case 'SELECT_PRIMARY_COLOR':
         //if index is not null and the selected color is not the exact same as the current primary color update the primary color. If not do nothing
