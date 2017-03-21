@@ -35,20 +35,20 @@ export class ColorCubeComponent implements OnInit, OnChanges {
 
   private createSpread(): any {
     if (this.color) {
-      let spreadColor: Hsva;
-      spreadColor = this.cpService.stringToHsva(this.color, true); //if hex8 formatting returns null then we likely have a hex6 string.
-      if (!spreadColor) {
-        spreadColor = this.cpService.stringToHsva(this.color, false);
+      let cubeColor: Hsva;
+      cubeColor = this.cpService.stringToHsva(this.color, true); //if hex8 formatting returns null then we likely have a hex6 string.
+      if (!cubeColor) {
+        cubeColor = this.cpService.stringToHsva(this.color, false);
       }
 
       let spreadColors: string[][] = [];
       for (let i = 0; i < this.saturationSwatchCount; i++) { //every ith row will have a unique saturation
-        let saturation: number = ((i * (100 / this.saturationSwatchCount))) / 100;
+        let saturation: number = this.getHsvaValue(i, cubeColor.s, this.saturationSwatchCount);
         let spreadColorRow: string[] = [];
         for (let j = 0; j < this.lightSwatchCount; j++) { //every jth column will have a unique lightness
-          let value: number = ((j * (100 / this.lightSwatchCount))) / 100;
+          let value: number = this.getHsvaValue(j, cubeColor.v, this.lightSwatchCount);
           spreadColorRow[j] = this.cpService.outputFormat(
-            new Hsva(spreadColor.h, saturation, value, spreadColor.a), this.output, this.alpha === 'hex8'
+            new Hsva(cubeColor.h, saturation, value, cubeColor.a), this.output, this.alpha === 'hex8'
           )
         }
         spreadColors[i] = spreadColorRow;
@@ -56,6 +56,10 @@ export class ColorCubeComponent implements OnInit, OnChanges {
 
       this.spreadColors = spreadColors;
     }
+  }
+
+  private getHsvaValue(index: number, value: number, swatchCount: number): number {
+    return ((((index * (100 / swatchCount))) + (value * 100)) % 100) / 100;
   }
 
 }

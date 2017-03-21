@@ -32,7 +32,9 @@ export class ColorPickerStore {
           complimentaryColor: null,
           tertiaryColor: null,
           quaternaryColor: null,
-          harmonyType: 'left'
+          harmonyType: 'left',
+          lightSwatchCount: 12,
+          saturationSwatchCount: 12
         };
       }
     }
