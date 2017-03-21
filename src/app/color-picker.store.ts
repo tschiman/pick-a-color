@@ -29,14 +29,10 @@ export class ColorPickerStore {
           alpha: 'hex6',
           colorHarmony: 'Monochrome',
           primaryColor: '#fff',
-          spreadColor: null,
           complimentaryColor: null,
           tertiaryColor: null,
           quaternaryColor: null,
-          selectedIndex: null,
-          shadeArrays: [],
-          harmonyType: 'left',
-          swatchCount: 10
+          harmonyType: 'left'
         };
       }
     }
@@ -44,9 +40,6 @@ export class ColorPickerStore {
     let newState: any;
 
     switch (action.type) {
-      case 'SELECT_COLOR':
-        newState = Object.assign({}, currentState, {selectedIndex: action.index});
-        break;
       case 'CHANGE_OUTPUT':
         newState = this.changeOutputReducer(currentState, action);
         break;
@@ -61,12 +54,6 @@ export class ColorPickerStore {
         break;
       case 'HARMONY_TYPE_CHANGE':
         newState = this.harmonyTypeChangeReducer(currentState, action);
-        break;
-      case 'SELECT_SWATCH_COUNT':
-        newState = this.selectSwatchCountReducer(currentState, action);
-        break;
-      case 'SELECT_COLOR_SPREAD':
-        newState = this.selectColorSpread(currentState, action);
         break;
       case 'CHANGE_LIGHT_SWATCH_COUNT':
         newState = Object.assign({}, currentState, {lightSwatchCount: action.lightSwatchCount});
@@ -119,13 +106,6 @@ export class ColorPickerStore {
         colorHarmony: currentState.colorHarmony,
         primaryColor: action.primaryColor
       }, false);
-      // return this.updateShadeArrays(currentState, {
-      //   type: 'UPDATE_SHADE_ARRAY',
-      //   harmonyType: currentState.harmonyType,
-      //   colorHarmony: currentState.colorHarmony,
-      //   primaryColor: action.primaryColor,
-      //   swatchCount: currentState.swatchCount
-      // }, false);
     } else {
       return Object.assign({}, currentState);
     }
@@ -308,27 +288,6 @@ export class ColorPickerStore {
         colorHarmony: currentState.colorHarmony,
         primaryColor: currentState.primaryColor
       }, true);
-    }
-  }
-
-  private selectSwatchCountReducer(currentState: any, action: any) {
-    let newState = this.updateColors(currentState, {
-      type: 'UPDATE_COLORS',
-      harmonyType: currentState.harmonyType,
-      colorHarmony: currentState.colorHarmony,
-      primaryColor: currentState.primaryColor
-    }, true);
-    return Object.assign({}, newState, {swatchCount: action.swatchCount, shadeArrays: newState.shadeArrays});
-  }
-
-  private selectColorSpread(currentState: any, action: any) {
-    let spreadColor: string = currentState.spreadColor === action.spreadColor ? null : action.spreadColor; //If I select the spread color twice deselect the spread
-    if (spreadColor) {
-      //create the spread
-      let newState = this.createSpread(currentState, {type: 'CREATE_SPREAD', spreadColor: spreadColor});
-      return Object.assign({}, newState, {spreadColor: spreadColor});
-    } else {
-      return Object.assign({}, currentState, {spreadColor: spreadColor});
     }
   }
 }
