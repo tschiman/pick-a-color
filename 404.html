@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="author" content="Tim Schimandle">
-  <title>ColorComparison</title>
+  <title>Pick A Color</title>
   <base href="">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="./bootstrap.css" rel="stylesheet">
   <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-</head>
+  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+<link href="styles.72b17db6cfaf8e167c3d.bundle.css" rel="stylesheet"/></head>
 <body>
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">Color Selector</a>
+        <a class="navbar-brand" href="#">Color Picker</a>
       </div>
     </div>
   </nav>
@@ -25,13 +25,18 @@
     <div class="container color-selector-title">
       <div class="row">
         <div class="col-md-12">
-          <h1>Color Selector</h1>
-          <p>Color selector app written in ng2. Colors will persist from visit to visit in local storage.</p>
+          <h1>Pick A Color</h1>
+          <p>Pick A Color is written using angular. Colors will persist from visit to visit in local storage.</p>
+          <p>Any color can be clicked to copy it to the clipboard.</p>
+          <p>Once a color has opacity hex output will display in rgba when in hex6 or disabled mode. It will convert to
+            hex8 when hex8 mode is selected</p>
+          <p>At the time of writing this chrome did not support hex8 values and they will not display properly. Switch
+            to hsla or rgba for opacity support.</p>
         </div>
       </div>
     </div>
   </section>
 
   <app-root>Loading...</app-root>
-<script type="text/javascript" src="inline.bundle.js"></script><script type="text/javascript" src="polyfills.bundle.js"></script><script type="text/javascript" src="styles.bundle.js"></script><script type="text/javascript" src="vendor.bundle.js"></script><script type="text/javascript" src="main.bundle.js"></script></body>
+<script type="text/javascript" src="inline.946d98e1b1023decb28f.bundle.js"></script><script type="text/javascript" src="polyfills.59258a91f9e26df87db9.bundle.js"></script><script type="text/javascript" src="vendor.fdb7913d93fd588b8a90.bundle.js"></script><script type="text/javascript" src="main.c03857e49a1faae1b274.bundle.js"></script></body>
 </html>
