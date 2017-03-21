@@ -18,9 +18,12 @@
       "tsconfig": "tsconfig.json",
       "prefix": "color-comparison",
       "styles": [
-        "styles.css"
+        "styles.css",
+        "../node_modules/ng2-toastr/bundles/ng2-toastr.min.css"
       ],
-      "scripts": [],
+      "scripts": [
+        "../node_modules/ng2-toastr/bundles/ng2-toastr.js"
+      ],
       "environments": {
         "source": "environments/environment.ts",
         "dev": "environments/environment.ts",

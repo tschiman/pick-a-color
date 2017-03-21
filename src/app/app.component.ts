@@ -1,5 +1,6 @@
-import {Component, OnInit, OnDestroy, ElementRef, ChangeDetectorRef} from "@angular/core";
+import {Component, OnInit, OnDestroy, ChangeDetectorRef, ViewContainerRef} from "@angular/core";
 import {ColorPickerStore} from "./color-picker.store";
+import {ToastsManager} from "ng2-toastr";
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,12 @@ export class AppComponent implements OnInit, OnDestroy{
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
   colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
 
-  constructor(private cpStore: ColorPickerStore, private elmRef: ElementRef, private changeDetector: ChangeDetectorRef) {
+  constructor(private cpStore: ColorPickerStore, private changeDetector: ChangeDetectorRef, public toastr: ToastsManager, vcr: ViewContainerRef) {
+    this.toastr.setRootViewContainerRef(vcr);
+  }
+
+  showSuccess(color: string) {
+    this.toastr.success(color, 'Copied to clipboard!');
   }
 
   ngOnInit() {
