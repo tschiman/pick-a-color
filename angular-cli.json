@@ -19,11 +19,9 @@
       "prefix": "color-comparison",
       "styles": [
         "styles.css",
-        "../node_modules/ng2-toastr/bundles/ng2-toastr.min.css"
+        "../node_modules/ng2-toastr/ng2-toastr.css"
       ],
-      "scripts": [
-        "../node_modules/ng2-toastr/bundles/ng2-toastr.js"
-      ],
+      "scripts": [],
       "environments": {
         "source": "environments/environment.ts",
         "dev": "environments/environment.ts",
