@@ -1,3 +1,19 @@
-<p>
-  color-cube works!
-</p>
+<div *ngIf="color" class="row color-cube">
+  <div class="col-md-12">
+    <table class="table-bordered">
+      <tbody>
+      <tr *ngFor="let spreadColor of spreadColors" class="row">
+        <td *ngFor="let color of spreadColor"
+            title="{{color}}"
+            class="color-container"
+            ngxClipboard
+            [cbContent]="color"
+            (click)="showSuccess(color)"
+            [style.background]="color">
+          &nbsp;
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,6 +1,5 @@
-import {Component, OnInit, OnDestroy, ChangeDetectorRef, ViewContainerRef} from "@angular/core";
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from "@angular/core";
 import {ColorPickerStore} from "./color-picker.store";
-import {ToastsManager} from "ng2-toastr";
 
 @Component({
   selector: 'app-root',
@@ -13,13 +12,9 @@ export class AppComponent implements OnInit, OnDestroy{
   outputs: string[] = ['hex', 'rgba', 'hsla'];
   alphas: string[] = ['hex6', 'hex8', 'disabled'];
   colorHarmonies: string[] = ['Monochrome', 'Complimentary', 'Analogous', 'Split Complimentary', 'Triadic', 'Tetradic'];
+  lightSwatchCount: number;
 
-  constructor(private cpStore: ColorPickerStore, private changeDetector: ChangeDetectorRef, public toastr: ToastsManager, vcr: ViewContainerRef) {
-    this.toastr.setRootViewContainerRef(vcr);
-  }
-
-  showSuccess(color: string) {
-    this.toastr.success(color, 'Copied to clipboard!');
+  constructor(private cpStore: ColorPickerStore, private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -42,16 +37,19 @@ export class AppComponent implements OnInit, OnDestroy{
     this.cpStore.dispatch(this.state, {type: 'HARMONY_TYPE_CHANGE', harmonyType: harmonyType})
   }
 
-  selectColorSpread(spreadColor: string) {
-    this.cpStore.dispatch(this.state, {type: 'SELECT_COLOR_SPREAD', spreadColor: spreadColor})
-  }
-
   selectPrimaryColor(color: string): void {
     this.cpStore.dispatch(this.state, {type: 'SELECT_PRIMARY_COLOR', primaryColor: color})
   }
 
-  onSwatchCountChange(swatchCount: number) {
-    this.cpStore.dispatch(this.state, {type: 'SELECT_SWATCH_COUNT', swatchCount: swatchCount})
+  onLightSwatchCount(lightSwatchCount: number) {
+    this.cpStore.dispatch(this.state, {type: 'CHANGE_LIGHT_SWATCH_COUNT', lightSwatchCount: lightSwatchCount})
+  }
+
+  onSaturationSwatchCount(saturationSwatchCount: number) {
+    this.cpStore.dispatch(this.state, {
+      type: 'CHANGE_SATURATION_SWATCH_COUNT',
+      saturationSwatchCount: saturationSwatchCount
+    })
   }
 
   onOutputChange(output: string): void {

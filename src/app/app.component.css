@@ -42,16 +42,3 @@ form {
   -o-transform: rotate(-270deg);
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
-
-table {
-  width: 100%;
-  margin-bottom: 40px;
-}
-
-table td {
-  border-color: white;
-}
-
-table td.color-container:hover {
-  border-color: #8c8c8c;
-}

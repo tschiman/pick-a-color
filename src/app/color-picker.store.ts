@@ -68,6 +68,12 @@ export class ColorPickerStore {
       case 'SELECT_COLOR_SPREAD':
         newState = this.selectColorSpread(currentState, action);
         break;
+      case 'CHANGE_LIGHT_SWATCH_COUNT':
+        newState = Object.assign({}, currentState, {lightSwatchCount: action.lightSwatchCount});
+        break;
+      case 'CHANGE_SATURATION_SWATCH_COUNT':
+        newState = Object.assign({}, currentState, {saturationSwatchCount: action.saturationSwatchCount});
+        break;
       case 'INIT':
         newState = Object.assign({}, currentState);
         break;
@@ -79,24 +85,22 @@ export class ColorPickerStore {
 
   private harmonyTypeChangeReducer(currentState: any, action: any) {
     //update the shade arrays for the new color harmony
-    let newState = this.updateShadeArrays(currentState, {
-      type: 'UPDATE_SHADE_ARRAY',
+    let newState = this.updateColors(currentState, {
+      type: 'UPDATE_COLORS',
       harmonyType: action.harmonyType,
       colorHarmony: currentState.colorHarmony,
-      primaryColor: currentState.primaryColor,
-      swatchCount: currentState.swatchCount
+      primaryColor: currentState.primaryColor
     }, false);
     return Object.assign({}, newState, {harmonyType: action.harmonyType});
   }
 
   private colorHarmonyChangeReducer(currentState: any, action: any) {
     //update the shade arrays for the new color harmony
-    let newState = this.updateShadeArrays(currentState, {
-      type: 'UPDATE_SHADE_ARRAY',
+    let newState = this.updateColors(currentState, {
+      type: 'UPDATE_COLORS',
       harmonyType: currentState.harmonyType,
       colorHarmony: action.colorHarmony,
-      primaryColor: currentState.primaryColor,
-      swatchCount: currentState.swatchCount
+      primaryColor: currentState.primaryColor
     }, false);
     if (currentState.harmonyType === 'center' && action.colorHarmony === 'Tetradic') {
       return Object.assign({}, newState, {colorHarmony: action.colorHarmony, harmonyType: 'left'});
@@ -109,13 +113,19 @@ export class ColorPickerStore {
     //if index is not null and the selected color is not the exact same as the current primary color update the primary color. If not do nothing
     if (action.primaryColor != null && action.primaryColor !== currentState.primaryColor) {
       //generate the appropriate colors
-      return this.updateShadeArrays(currentState, {
-        type: 'UPDATE_SHADE_ARRAY',
+      return this.updateColors(currentState, {
+        type: 'UPDATE_COLORS',
         harmonyType: currentState.harmonyType,
         colorHarmony: currentState.colorHarmony,
-        primaryColor: action.primaryColor,
-        swatchCount: currentState.swatchCount
+        primaryColor: action.primaryColor
       }, false);
+      // return this.updateShadeArrays(currentState, {
+      //   type: 'UPDATE_SHADE_ARRAY',
+      //   harmonyType: currentState.harmonyType,
+      //   colorHarmony: currentState.colorHarmony,
+      //   primaryColor: action.primaryColor,
+      //   swatchCount: currentState.swatchCount
+      // }, false);
     } else {
       return Object.assign({}, currentState);
     }
@@ -156,7 +166,7 @@ export class ColorPickerStore {
     }
   }
 
-  private updateShadeArrays(currentState: any, action: any, forceUpdate: boolean): any {
+  private updateColors(currentState: any, action: any, forceUpdate: boolean): any {
     let primaryColor: Hsva;
     let complimentaryColor: Hsva;
     let splitCompliment2: Hsva;
@@ -168,7 +178,6 @@ export class ColorPickerStore {
     let tetradic2: Hsva;
     let tetradic3: Hsva;
     let tetradic4: Hsva;
-    let swatchCount = currentState.swatchCount === action.swatchCount ? currentState.swatchCount : action.swatchCount;
 
     let noChanges: boolean = action.primaryColor === currentState.primaryColor && action.colorHarmony === currentState.colorHarmony && action.harmonyType === currentState.harmonyType;
     if (noChanges && !forceUpdate) return Object.assign({}, currentState);
@@ -213,130 +222,51 @@ export class ColorPickerStore {
         tetradic4 = new Hsva(this.convertHue(primaryColor.h, 300), primaryColor.s, primaryColor.v, primaryColor.a);
       }
 
-      let newShadeArray = [];
       if (action.colorHarmony === 'Monochrome') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ];
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
-          primaryColor: action.primaryColor,
-          shadeArrays: newShadeArray
+          primaryColor: action.primaryColor
         });
       } else if (action.colorHarmony === 'Complimentary') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(complimentaryColor.h, ((i * (100 / swatchCount))) / 100, complimentaryColor.v, complimentaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ]
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
-          secondaryColor: this.cpService.outputFormat(complimentaryColor, currentState.output, currentState.alpha === 'hex8'),
-          shadeArrays: newShadeArray
+          secondaryColor: this.cpService.outputFormat(complimentaryColor, currentState.output, currentState.alpha === 'hex8')
         });
       } else if (action.colorHarmony === 'Split Complimentary') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(splitCompliment2.h, ((i * (100 / swatchCount))) / 100, splitCompliment2.v, splitCompliment2.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(splitCompliment3.h, ((i * (100 / swatchCount))) / 100, splitCompliment3.v, splitCompliment3.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ]
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(splitCompliment2, currentState.output, currentState.alpha === 'hex8'),
-          tertiaryColor: this.cpService.outputFormat(splitCompliment3, currentState.output, currentState.alpha === 'hex8'),
-          shadeArrays: newShadeArray
+          tertiaryColor: this.cpService.outputFormat(splitCompliment3, currentState.output, currentState.alpha === 'hex8')
         });
       } else if (action.colorHarmony === 'Triadic') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(triadicColor2.h, ((i * (100 / swatchCount))) / 100, triadicColor2.v, triadicColor2.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(triadicColor3.h, ((i * (100 / swatchCount))) / 100, triadicColor3.v, triadicColor3.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ]
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(triadicColor2, currentState.output, currentState.alpha === 'hex8'),
-          tertiaryColor: this.cpService.outputFormat(triadicColor3, currentState.output, currentState.alpha === 'hex8'),
-          shadeArrays: newShadeArray
+          tertiaryColor: this.cpService.outputFormat(triadicColor3, currentState.output, currentState.alpha === 'hex8')
         });
       } else if (action.colorHarmony === 'Analogous') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(analogous2.h, ((i * (100 / swatchCount))) / 100, triadicColor2.v, triadicColor2.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(analogous3.h, ((i * (100 / swatchCount))) / 100, triadicColor3.v, triadicColor3.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ]
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(analogous2, currentState.output, currentState.alpha === 'hex8'),
-          tertiaryColor: this.cpService.outputFormat(analogous3, currentState.output, currentState.alpha === 'hex8'),
-          shadeArrays: newShadeArray
+          tertiaryColor: this.cpService.outputFormat(analogous3, currentState.output, currentState.alpha === 'hex8')
         });
       } else if (action.colorHarmony === 'Tetradic') {
-        for (let i = 0; i < swatchCount; i++) {
-          newShadeArray[i] = [
-            this.cpService.outputFormat(
-              new Hsva(primaryColor.h, ((i * (100 / swatchCount))) / 100, primaryColor.v, primaryColor.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(tetradic2.h, ((i * (100 / swatchCount))) / 100, tetradic2.v, tetradic2.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(tetradic3.h, ((i * (100 / swatchCount))) / 100, tetradic3.v, tetradic3.a), currentState.output, currentState.alpha === 'hex8'
-            ),
-            this.cpService.outputFormat(
-              new Hsva(tetradic4.h, ((i * (100 / swatchCount))) / 100, tetradic4.v, tetradic4.a), currentState.output, currentState.alpha === 'hex8'
-            )
-          ]
-        }
         return Object.assign({}, currentState, {
           harmonyType: action.harmonyType,
           colorHarmony: action.colorHarmony,
           primaryColor: this.cpService.outputFormat(primaryColor, currentState.output, currentState.alpha === 'hex8'),
           secondaryColor: this.cpService.outputFormat(tetradic2, currentState.output, currentState.alpha === 'hex8'),
           tertiaryColor: this.cpService.outputFormat(tetradic3, currentState.output, currentState.alpha === 'hex8'),
-          quaternaryColor: this.cpService.outputFormat(tetradic4, currentState.output, currentState.alpha === 'hex8'),
-          shadeArrays: newShadeArray
+          quaternaryColor: this.cpService.outputFormat(tetradic4, currentState.output, currentState.alpha === 'hex8')
         });
       }
     }
@@ -353,12 +283,11 @@ export class ColorPickerStore {
     }
 
     //generate the appropriate colors
-    return this.updateShadeArrays(newState, {
+    return this.updateColors(newState, {
       type: 'UPDATE_SHADE_ARRAY',
       harmonyType: currentState.harmonyType,
       colorHarmony: currentState.colorHarmony,
-      primaryColor: currentState.primaryColor,
-      swatchCount: currentState.swatchCount
+      primaryColor: currentState.primaryColor
     }, true);
   }
 
@@ -371,26 +300,23 @@ export class ColorPickerStore {
 
     if (currentState.alpha !== action.alpha) {
       newState = Object.assign({}, currentState, {alpha: action.alpha});
-      newState = this.createSpread(newState, {type: 'CREATE_SPREAD', spreadColor: currentState.spreadColor});
       return this.changeOutput(newState, {output: newState.output}, true)
     } else {
-      return this.updateShadeArrays(currentState, {
-        type: 'UPDATE_SHADE_ARRAY',
+      return this.updateColors(currentState, {
+        type: 'UPDATE_COLORS',
         harmonyType: currentState.harmonyType,
         colorHarmony: currentState.colorHarmony,
-        primaryColor: currentState.primaryColor,
-        swatchCount: currentState.swatchCount
+        primaryColor: currentState.primaryColor
       }, true);
     }
   }
 
   private selectSwatchCountReducer(currentState: any, action: any) {
-    let newState = this.updateShadeArrays(currentState, {
-      type: 'UPDATE_SHADE_ARRAY',
+    let newState = this.updateColors(currentState, {
+      type: 'UPDATE_COLORS',
       harmonyType: currentState.harmonyType,
       colorHarmony: currentState.colorHarmony,
-      primaryColor: currentState.primaryColor,
-      swatchCount: action.swatchCount
+      primaryColor: currentState.primaryColor
     }, true);
     return Object.assign({}, newState, {swatchCount: action.swatchCount, shadeArrays: newState.shadeArrays});
   }
